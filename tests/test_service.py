@@ -80,6 +80,13 @@ class BoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.service.quote("regular", [{"product_id": "laptop", "quantity": 1}])
 
+    def test_quote_matches_placed_order(self):
+        items = [{"product_id": "hoodie", "quantity": 2}, {"product_id": "mug", "quantity": 1}]
+        quote = self.service.quote("student", items, "delivery")
+        order = self.service.place_order("student", items, "delivery")
+        for key in quote:
+            self.assertEqual(order[key], quote[key])
+
 
 if __name__ == "__main__":
     unittest.main()
