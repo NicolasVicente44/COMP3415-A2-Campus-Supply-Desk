@@ -98,6 +98,10 @@ class BoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.service.get_order("ORD-9999")
 
+    def test_cancel_order_unknown_id_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.service.cancel_order("ORD-9999")
+
 
 if __name__ == "__main__":
     unittest.main()
