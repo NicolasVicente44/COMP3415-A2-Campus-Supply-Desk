@@ -72,6 +72,10 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(quote["delivery_cents"], 600)
         self.assertEqual(quote["total_cents"], 10350)
 
+    def test_quantity_100_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.service.quote("regular", [{"product_id": "notebook", "quantity": 100}])
+
 
 if __name__ == "__main__":
     unittest.main()
