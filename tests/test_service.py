@@ -94,6 +94,10 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(order["delivery_cents"], 600)
         self.assertEqual(order["total_cents"], 7800)
 
+    def test_get_order_unknown_id_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.service.get_order("ORD-9999")
+
 
 if __name__ == "__main__":
     unittest.main()
