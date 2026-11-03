@@ -48,7 +48,15 @@ class BoundaryTests(unittest.TestCase):
                 {"product_id": "bag", "quantity": 3},
                 {"product_id": "bag", "quantity": 3},
             ])
-    
+
+    def test_student_no_discount_just_below_5000_cents(self):
+        quote = self.service.quote("student", [
+            {"product_id": "notebook", "quantity": 5},
+            {"product_id": "pen-pack", "quantity": 3},
+        ])
+        self.assertEqual(quote["subtotal_cents"], 4750)
+        self.assertEqual(quote["discount_cents"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
