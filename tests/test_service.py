@@ -76,6 +76,10 @@ class BoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.service.quote("regular", [{"product_id": "notebook", "quantity": 100}])
 
+    def test_unknown_product_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.service.quote("regular", [{"product_id": "laptop", "quantity": 1}])
+
 
 if __name__ == "__main__":
     unittest.main()
