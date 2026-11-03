@@ -57,6 +57,11 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(quote["subtotal_cents"], 4750)
         self.assertEqual(quote["discount_cents"], 0)
 
+    def test_delivery_free_at_exactly_10000_cents(self):
+        quote = self.service.quote("regular", [{"product_id": "bag", "quantity": 4}], "delivery")
+        self.assertEqual(quote["subtotal_cents"], 10000)
+        self.assertEqual(quote["delivery_cents"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
