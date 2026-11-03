@@ -27,6 +27,21 @@ class BoundaryTests(unittest.TestCase):
     def test_zero_quantity_is_rejected(self):
         with self.assertRaises(ValueError):
             self.service.quote("regular", [{"product_id": "notebook", "quantity": 0}])
+            
+            
+    def test_cancel_restores_stock(self):
+        before = self.service.catalog()
+        order = self.service.place_order("regular", [{"product_id": "hoodie", "quantity": 2}])
+        self.service.cancel_order(order["order_id"])
+        self.assertEqual(self.service.catalog(), before)
+        
+    def test_cancelling_twice_does_not_restore_stock_twice(self):
+        order = self.service.place_order("regular", [{"product_id": "hoodie", "quantity": 2}])
+        self.service.cancel_order(order["order_id"])
+        self.service.cancel_order(order["order_id"])
+        stock = self.service.catalog()[2]["stock"]
+        self.assertEqual(stock, 5) 
+    
 
 if __name__ == "__main__":
     unittest.main()
