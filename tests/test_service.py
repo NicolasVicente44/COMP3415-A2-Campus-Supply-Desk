@@ -87,6 +87,13 @@ class BoundaryTests(unittest.TestCase):
         for key in quote:
             self.assertEqual(order[key], quote[key])
 
+    def test_place_order_student_delivery_pricing(self):
+        order = self.service.place_order("student", [{"product_id": "hoodie", "quantity": 2}], "delivery")
+        self.assertEqual(order["subtotal_cents"], 8000)
+        self.assertEqual(order["discount_cents"], 800)
+        self.assertEqual(order["delivery_cents"], 600)
+        self.assertEqual(order["total_cents"], 7800)
+
 
 if __name__ == "__main__":
     unittest.main()
