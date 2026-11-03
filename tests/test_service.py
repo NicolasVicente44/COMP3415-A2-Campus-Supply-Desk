@@ -41,6 +41,13 @@ class BoundaryTests(unittest.TestCase):
         self.service.cancel_order(order["order_id"])
         stock = self.service.catalog()[2]["stock"]
         self.assertEqual(stock, 5) 
+        
+    def test_same_product_on_two_lines_cannot_exceed_stock(self):
+        with self.assertRaises(ValueError):
+            self.service.place_order("regular", [
+                {"product_id": "bag", "quantity": 3},
+                {"product_id": "bag", "quantity": 3},
+            ])
     
 
 if __name__ == "__main__":
