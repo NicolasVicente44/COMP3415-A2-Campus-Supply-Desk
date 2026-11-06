@@ -103,5 +103,57 @@ class BoundaryTests(unittest.TestCase):
             self.service.cancel_order("ORD-9999")
 
 
+
+class ExpressDeliveryTests(unittest.TestCase):
+    """CR-01: express delivery."""
+
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.path = Path(self.directory.name) / "state.json"
+        self.service = OrderService(self.path)
+
+    def test_regular_two_notebooks_express(self):
+        quote = self.service.quote("regular", [{"product_id": "notebook", "quantity": 2}], "express")
+        self.assertEqual(quote["fulfillment"], "express")
+        self.assertEqual(quote["delivery_cents"], 1200)
+        self.assertEqual(quote["total_cents"], 2200)
+
+    def test_student_two_hoodies_express(self):
+        quote = self.service.quote("student", [{"product_id": "hoodie", "quantity": 2}], "express")
+        self.assertEqual(quote["discount_cents"], 800)
+        self.assertEqual(quote["delivery_cents"], 1200)
+        self.assertEqual(quote["total_cents"], 8400)
+
+    def test_express_fee_never_waived(self):
+        items = [{"product_id": "hoodie", "quantity": 3}]
+        standard = self.service.quote("regular", items, "delivery")
+        express = self.service.quote("regular", items, "express")
+        self.assertEqual(standard["total_cents"], 12000)
+        self.assertEqual(express["delivery_cents"], 1200)
+        self.assertEqual(express["total_cents"], 13200)
+
+    def test_express_quote_matches_placed_order(self):
+        items = [{"product_id": "hoodie", "quantity": 2}]
+        quote = self.service.quote("student", items, "express")
+        order = self.service.place_order("student", items, "express")
+        for key in quote:
+            self.assertEqual(order[key], quote[key])
+
+    def test_express_order_kept_after_reopen_and_cancel(self):
+        order = self.service.place_order("student", [{"product_id": "hoodie", "quantity": 2}], "express")
+        reopened = OrderService(self.path)
+        cancelled = reopened.cancel_order(order["order_id"])
+        self.assertEqual(cancelled["status"], "cancelled")
+        self.assertEqual(cancelled["fulfillment"], "express")
+        self.assertEqual(cancelled["delivery_cents"], 1200)
+        self.assertEqual(cancelled["total_cents"], 8400)
+        self.assertEqual(reopened.catalog()[2]["stock"], 5)
+
+    def test_other_fulfillment_still_rejected(self):
+        with self.assertRaises(ValueError):
+            self.service.quote("regular", [{"product_id": "notebook", "quantity": 1}], "courier")
+
+
 if __name__ == "__main__":
     unittest.main()
