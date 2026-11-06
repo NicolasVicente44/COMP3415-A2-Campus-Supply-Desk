@@ -1,7 +1,11 @@
 from pathlib import Path
+import contextlib
+import io
+import json
 import tempfile
 import unittest
 
+from supplydesk import cli
 from supplydesk.service import OrderService
 
 
@@ -153,6 +157,14 @@ class ExpressDeliveryTests(unittest.TestCase):
     def test_other_fulfillment_still_rejected(self):
         with self.assertRaises(ValueError):
             self.service.quote("regular", [{"product_id": "notebook", "quantity": 1}], "courier")
+
+    def test_cli_express_quote(self):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            status = cli.main(["--data", str(self.path), "quote", "--customer", "student",
+                               "--fulfillment", "express", "--item", "hoodie:2"])
+        self.assertEqual(status, 0)
+        self.assertEqual(json.loads(output.getvalue())["total_cents"], 8400)
 
 
 if __name__ == "__main__":
