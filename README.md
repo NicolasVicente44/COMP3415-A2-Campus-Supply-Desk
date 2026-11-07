@@ -95,17 +95,25 @@ From the folder containing `README.md`, `supplydesk`, and `tests`, run:
 python -m unittest discover -s tests -v
 ```
 
-The supplied tests should finish with:
+The full suite should finish with:
 
 ```text
-Ran 4 tests
+Ran 26 tests
 
-OK
+FAILED (failures=3)
 ```
 
-These four tests are a starting point. **Passing them does not mean every required behavior is correct.** You will add meaningful tests as part of the assignment.
+The suite has the 4 original starter tests in `tests/test_smoke.py` and 22 added tests in `tests/test_service.py`: 15 normal, boundary, invalid and behavior-to-preserve tests, and 7 tests for CR-01 (express delivery).
 
-The supplied tests use temporary files and do not change your saved orders or stock.
+**The 3 failures are expected.** Each test checks a rule from `FUNCTIONAL_SPEC.md` that the original code breaks. They were left failing on purpose, so the defects stay documented and the refactorings could be shown to preserve existing behavior:
+
+| Failing test | Spec rule | Actual behavior |
+|---|---|---|
+| `test_student_discount_at_exactly_5000_cents` | Students get 10% off when the subtotal is at least 5,000 cents | No discount at exactly 5,000 (the code uses `>` instead of `>=`) |
+| `test_same_product_on_two_lines_cannot_exceed_stock` | The combined quantity of a product must not exceed its stock | Stock is checked per line, so the order is accepted and stock goes negative |
+| `test_cancelling_twice_does_not_restore_stock_twice` | Cancelling an already cancelled order must not change stock | Stock is restored a second time |
+
+All tests use temporary files and do not change your saved orders or stock.
 
 ## 4. Saved data and practice sessions
 
@@ -153,6 +161,7 @@ Avoid running two instances that change the same save file simultaneously.
 - **`supplydesk/storage.py`** — Loading and saving local JSON data.
 - **`supplydesk/catalog.json`** — Initial products, prices, and stock for a new session.
 - **`tests/test_smoke.py`** — Four starter tests.
+- **`tests/test_service.py`** — Added tests for normal, boundary, invalid and behavior-to-preserve cases, plus the CR-01 express delivery tests.
 
 The menu and individual commands use the same service and saved data. When a later requirement affects available choices or displayed information, review both interfaces.
 
